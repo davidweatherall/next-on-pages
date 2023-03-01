@@ -140,7 +140,15 @@ export default {
           context
         );
         
-        if(['x-middleware-rewrite', 'x-middleware-next'].some(header => edgeFn.headers.has(header))) break;
+        if (edgeFn.headers.has('x-middleware-next')) {
+          break;
+        }
+
+        if (edgeFn.headers.has('x-middleware-rewrite')) {
+          const rewriteUrl = edgeFn.headers.get('x-middleware-rewrite');
+          request = new Request(rewriteUrl, request);
+          break;
+        }
 
         return edgeFn;
       }
@@ -162,7 +170,12 @@ export default {
       }
 
       if (found) {
-        return entrypoint.default(request, context);
+        const resp = await entrypoint.default(request, context);
+        if(request.headers.has('x-custom-cache')) {
+          resp.headers.set("cache-control", request.headers.get('x-custom-cache'));
+          resp.headers.set("x-custom-cache", request.headers.get('x-custom-cache'));
+        }
+        return resp;
       }
     }
 

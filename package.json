@@ -1,6 +1,6 @@
 {
   "name": "@davidweatherall/next-on-pages",
-  "version": "0.3.3",
+  "version": "0.3.15",
   "bin": {
     "next-on-pages": "bin/index.js"
   },
