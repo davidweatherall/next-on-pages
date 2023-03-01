@@ -135,10 +135,14 @@ export default {
 
     for (const route of routes) {
       if ("middlewarePath" in route && route.middlewarePath in __MIDDLEWARE__) {
-        return await __MIDDLEWARE__[route.middlewarePath].entrypoint.default(
+        const edgeFn = await __MIDDLEWARE__[route.middlewarePath].entrypoint.default(
           request,
           context
         );
+        
+        if(['x-middleware-rewrite', 'x-middleware-next'].some(header => edgeFn.headers.has(header))) break;
+
+        return edgeFn;
       }
     }
 
